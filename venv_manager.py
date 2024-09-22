@@ -88,7 +88,7 @@ def help():
     Python Virtual Environment Manager
 
     Usage:
-      python venv_manager.py [command] <args>
+      vm [command] <args>
 
     Commands:
       list [base_dir1] [base_dir2] ...   List all virtual environments in the specified directories.
@@ -100,21 +100,21 @@ def help():
       delete <venv_path>                 Delete the virtual environment at the specified path.
 
     Examples:
-      python venv_manager.py list        Lists all virtual environments on the entire system.
-      python venv_manager.py list ~/projects /path/to/another_dir
+      vm list        Lists all virtual environments on the entire system.
+      vm list ~/projects /path/to/another_dir
                                          Lists virtual environments in the specified directories.
-      python venv_manager.py create myenv
+      vm create myenv
                                          Creates a virtual environment named 'myenv' in the current directory.
-      python venv_manager.py create myenv ~/projects
+      vm create myenv ~/projects
                                          Creates 'myenv' in the '~/projects' directory.
-      python venv_manager.py delete ~/projects/myenv
+      vm delete ~/projects/myenv
                                          Deletes the virtual environment at '~/projects/myenv'.
     """
     print(help_message)
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python venv_manager.py [list|create|delete] <args>")
+        print("Usage: vm [list|create|delete] <args>")
         print("  list [base_dir1, base_dir2, ...]     - List all virtual environments")
         print("  create <env_name> [base_dir]         - Create a virtual environment")
         print("  delete <venv_path>                   - Delete a virtual environment")
@@ -132,7 +132,7 @@ def main():
     
     elif command == "create":
         if len(sys.argv) < 3:
-            print("Usage: python venv_manager.py create <env_name> [base_dir]")
+            print("Usage: vm create <env_name> [base_dir]")
         else:
             env_name = sys.argv[2]
             base_dir = sys.argv[3] if len(sys.argv) == 4 else None
@@ -140,14 +140,14 @@ def main():
     
     elif command == "delete":
         if len(sys.argv) != 3:
-            print("Usage: python venv_manager.py delete <venv_path>")
+            print("Usage: vm delete <venv_path>")
         else:
             venv_path = sys.argv[2]
             delete_venv(venv_path)
     
     else:
         print(f"Unknown command: {command}")
-        print("Usage: python venv_manager.py [list|create|delete] <args>")
+        print("Usage: vm [list|create|delete] <args>")
 
 if __name__ == "__main__":
     main()
