@@ -15,6 +15,7 @@ def find_venvs(root_dir):
             continue
         if 'pyvenv.cfg' in files:  # 'pyvenv.cfg' indicates a Python virtual environment
             venvs.append(root)
+            dirs[:] = []
     return venvs
 
 def list_venvs(base_dirs):
@@ -33,8 +34,9 @@ def list_venvs(base_dirs):
         print("No virtual environments found.")
     else:
         print("Found virtual environments:")
-        for venv in all_venvs:
-            print(f"- {venv}")
+        for i, venv in enumerate(all_venvs):
+            print(f"  {i+1}. {venv}")
+        print(f"VENV Count: {len(all_venvs)}")
 
 def create_venv(env_name, base_dir=None):
     """
