@@ -42,5 +42,5 @@ If no base directory is provided, it creates the environment in the current dire
 ### Help Cammand
 For detailed usage information, run:
 ```bash
-    vm help
+vm help
 
