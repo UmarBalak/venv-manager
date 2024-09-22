@@ -7,6 +7,7 @@ A command-line tool to manage Python virtual environments across your entire PC.
 - **List virtual environments** in specified directories or throughout the entire PC.
 - **Create new virtual environments** in a specified directory or the current directory.
 - **Delete existing virtual environments** safely.
+- **Display information about virtual environments** in simple way.
 
 ## Installation
 
@@ -38,6 +39,11 @@ If no base directory is provided, it creates the environment in the current dire
 * Delete a virtual environment:
     ```bash
     vm delete <venv_path>
+
+* Display information about a virtual environment:
+    ```bash
+    vm info <venv_path>
+Displays the Python version and installed packages for the specified virtual environment.
 
 ### Help Cammand
 For detailed usage information, run:
