@@ -2,6 +2,9 @@ import os
 import sys
 import shutil
 import subprocess
+# import logging
+
+BLACKLIST = ['bin', 'Scripts', 'Recycle.Bin', '$RECYCLE.BIN', "Windows", "Program Files", "Program Files (x86)", "ProgramData"]
 
 def get_python_version(venv_path):
     """
@@ -61,30 +64,62 @@ def display_venv_details(venv_path):
     print(installed_packages if installed_packages else "(No packages installed)")
     print(f"\nSize: {venv_size / (1024 ** 2):.2f} MB")
 
-def find_venvs(root_dir):
+def find_venvs(root_dir, current_depth, max_depth):
     """
-    Recursively search for Python virtual environments in the given root directory.
-    Skips 'bin', 'RECYCLE.BIN', and 'Scripts' folders, only lists venv directories.
-    Stops searching inside a virtual environment once found.
+    The function `find_venvs` recursively searches for virtual environments (venvs) within a specified
+    directory up to a certain depth.
+    
+    :param root_dir: The `root_dir` parameter in the `find_venvs` function represents the directory from
+    which the search for virtual environments (venvs) will start. It is the starting point for the
+    search within the file system
+    :param current_depth: The `current_depth` parameter in the `find_venvs` function represents the
+    current depth level in the directory structure being searched. It is used to keep track of how deep
+    the function has traversed into the directory hierarchy. This parameter is incremented as the
+    function recursively searches through directories to avoid exceeding
+    :param max_depth: The `max_depth` parameter in the `find_venvs` function represents the maximum
+    depth to which the function will search for virtual environments (venvs) within the directory
+    structure. If the current depth of the search exceeds this `max_depth`, the function will stop
+    searching further into subdirectories
+    :return: The function `find_venvs` returns a list of paths to directories that contain a
+    `pyvenv.cfg` file within the specified depth limit from the root directory.
     """
     venvs = []
-    for root, dirs, files in os.walk(root_dir):
-        # Skip irrelevant directories
-        if any(skip in root for skip in ['bin', 'Scripts', 'RECYCLE.BIN']):
-            continue
-        if 'pyvenv.cfg' in files:  # 'pyvenv.cfg' indicates a Python virtual environment
-            venvs.append(root)
-            dirs[:] = []
+
+    # If current depth exceeds max depth, stop searching
+    if current_depth > max_depth:
+        return venvs
+
+    try:
+        with os.scandir(root_dir) as entries:
+            for entry in entries:
+                if entry.is_dir(follow_symlinks=False):
+                    # Skip irrelevant directories
+                    if any(entry.path.startswith(root_dir + skip) for skip in BLACKLIST)  or entry.path == root_dir + "\Public":
+                        # print(f"Skipping irrelevant directory: {entry.path}")
+                        # logging.warning("skipping")
+                        continue
+
+                    # Check if 'pyvenv.cfg' exists in this directory
+                    if os.path.exists(os.path.join(entry.path, 'pyvenv.cfg')):
+                        venvs.append(entry.path)
+                    else:
+                        # Recursively search in subdirectories, increasing the depth
+                        venvs.extend(find_venvs(entry.path, current_depth + 1, max_depth))
+    except (PermissionError, FileNotFoundError) as e:
+        pass
     return venvs
 
-def list_venvs(base_dirs):
+def list_venvs(base_dirs, max_depth=5):
     """
-    List all Python virtual environments across multiple base directories.
+    List all Python virtual environments across multiple base directories, 
+    with a limit on how deep to search.
     """
     all_venvs = []
+    
     for base_dir in base_dirs:
+        print(f"Checking base directory: {base_dir}")
         if os.path.exists(base_dir):
-            venvs = find_venvs(base_dir)
+            venvs = find_venvs(base_dir, current_depth=0, max_depth=max_depth)
             all_venvs.extend(venvs)
         else:
             print(f"Directory does not exist: {base_dir}")
@@ -96,7 +131,7 @@ def list_venvs(base_dirs):
         for i, venv in enumerate(all_venvs):
             print(f"  {i+1}. {venv}")
         print(f"VENV Count: {len(all_venvs)}")
-
+       
 def create_venv(env_name, base_dir=None):
     """
     Create a Python virtual environment in the specified base directory.
